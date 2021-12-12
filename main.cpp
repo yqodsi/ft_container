@@ -30,14 +30,20 @@ int main(int argc, char const *argv[])
 {
     try
     {
-        TL::vector<int> v1(3, 4);
+        TL::vector<int> v1;
+
         v1.push_back(6);
         v1.push_back(11);
         v1.push_back(12);
         v1.push_back(13);
         print_vector(v1);
-        v1.resize(17, 33);
-        print_vector(v1);
+        TL::vector<int>::iterator it = v1.begin();
+        TL::vector<int>::iterator it2 = v1.end();
+        while (it != v1.end())
+        {
+            std::cout << *it << std::endl;
+            it++;
+        }
     }
     catch (const std::exception &e)
     {

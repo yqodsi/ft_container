@@ -3,7 +3,9 @@
 
 #include "ft_container.hpp"
 
+#ifndef nullptr
 #define nullptr NULL
+#endif
 
 #define TBARZIT class Alloc = std::allocator<T>
 namespace ft
@@ -18,10 +20,58 @@ namespace ft
         // typedef std::size::ptrdiff_t difference_type;
         typedef value_type &reference;
         typedef const value_type &const_reference;
-        // typedef std::allocator_traits<Allocator>::pointer pointer;
+        typedef typename std::allocator_traits<Alloc>::pointer pointer; 
         // typedef std::reverse_iterator<iterator> reverse_iterator;
         // typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
     public:
+        struct iterator
+        {
+            iterator(value_type *ptr = nullptr) : m_ptr(ptr) {}
+            ~iterator(){}
+            iterator &operator=(iterator const &other)
+            {
+                if (*this == other)
+                    return (*this);
+                m_ptr = other.m_ptr;
+                return (*this);
+            }
+            reference operator*() const { return *m_ptr; }
+            pointer operator->() { return m_ptr; }
+            reference operator[](size_type index) { return m_ptr[index]; }
+
+            iterator &operator++()
+            {
+                m_ptr++;
+                return *this;
+            }
+            iterator operator++(int)
+            {
+                iterator tmp = *this;
+                ++(*this);
+                return tmp;
+            }
+            iterator &operator--()
+            {
+                m_ptr--;
+                return *this;
+            }
+            iterator operator--(int)
+            {
+                iterator tmp = *this;
+                --(*this);
+                return tmp;
+            }
+
+            bool operator==(const iterator &other) { return m_ptr == other.m_ptr; };
+            bool operator!=(const iterator &other) { return m_ptr != other.m_ptr; };
+            bool operator<(const iterator &other) { return m_ptr < other.m_ptr; };
+            bool operator>(const iterator &other) { return m_ptr > other.m_ptr; };
+            bool operator<=(const iterator &other) { return m_ptr <= other.m_ptr; };
+            bool operator>=(const iterator &other) { return m_ptr >= other.m_ptr; };
+
+        private:
+            value_type *m_ptr;
+        };
         explicit vector(const allocator_type &alloc = allocator_type())
             : _size(0), _capacity(0), _alloc(alloc), _arr(nullptr) {}
 
@@ -52,6 +102,8 @@ namespace ft
         reference front() { return (_arr[0]); }
         const_reference front() const { return (_arr[0]); }
 
+        iterator begin() { return iterator(_arr); }
+        iterator end() { return iterator(_arr + _size); }
         void clear()
         {
             for (size_t i = 0; i < _size; i++)
@@ -115,7 +167,7 @@ namespace ft
             else if (n > _size)
             {
                 if (n > _capacity)
-                    reserve(n);
+                    reserve(_capacity * 2); // linux reserve (n)
                 for (size_t i = _size; i < n; i++)
                     _alloc.construct(_arr + i, val);
             }
