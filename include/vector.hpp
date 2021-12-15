@@ -20,14 +20,15 @@ namespace ft
         // typedef std::size::ptrdiff_t difference_type;
         typedef value_type &reference;
         typedef const value_type &const_reference;
-        typedef typename std::allocator_traits<Alloc>::pointer pointer; 
+        typedef typename allocator_type::pointer pointer; // T*
+
         // typedef std::reverse_iterator<iterator> reverse_iterator;
         // typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
     public:
         struct iterator
         {
             iterator(value_type *ptr = nullptr) : m_ptr(ptr) {}
-            ~iterator(){}
+            ~iterator() {}
             iterator &operator=(iterator const &other)
             {
                 if (*this == other)
@@ -61,6 +62,10 @@ namespace ft
                 --(*this);
                 return tmp;
             }
+
+            iterator operator+(size_type index) { return iterator(m_ptr + index); }
+            iterator operator-(size_type index) { return iterator(m_ptr - index); }
+            size_type operator-(iterator it) { return (m_ptr - it.m_ptr); }
 
             bool operator==(const iterator &other) { return m_ptr == other.m_ptr; };
             bool operator!=(const iterator &other) { return m_ptr != other.m_ptr; };
@@ -104,6 +109,7 @@ namespace ft
 
         iterator begin() { return iterator(_arr); }
         iterator end() { return iterator(_arr + _size); }
+
         void clear()
         {
             for (size_t i = 0; i < _size; i++)
@@ -185,6 +191,49 @@ namespace ft
         {
             _alloc.destroy(_arr + _size - 1);
             _size--;
+        }
+
+        void insert(iterator position, size_type n, const value_type &val)
+        {
+            if (n == 0)
+                return;
+            size_t shift_size = this->end() - position;        // the size behind the position
+            size_t insert_position = position - this->begin(); // get_the index
+            if (_size + n >= _capacity)
+            {
+                size_t i = 0;
+                _capacity = _capacity * 2;
+                if (_capacity < _size + n)
+                    _capacity = _size + n;
+                value_type *new_arr = _alloc.allocate(_capacity);
+                // copy old data before the insert position
+                for (i = 0; i < insert_position; i++)
+                    _alloc.construct(new_arr + i, _arr[i]);
+
+                for (size_t j = 0; j < n; j++)
+                    _alloc.construct(new_arr + i++, val);
+
+                for (; insert_position < _size; insert_position++)
+                    _alloc.construct(new_arr + i++, _arr[insert_position]);
+
+                for (size_t j = 0; j < _size; j++)
+                    _alloc.destroy(_arr + j);
+
+                _alloc.deallocate(_arr, _capacity);
+                _arr = new_arr;
+            }
+            else
+            {
+                for (size_t i = 1; i <= shift_size; i++)
+                    _alloc.construct(_arr + _size + n - i, _arr[_size - i]);
+                for (size_t i = 0; i < n; i++)
+                {
+                    _alloc.destroy(_arr + insert_position);
+                    _alloc.construct(_arr + insert_position, val);
+                    insert_position++;
+                }
+            }
+            _size += n;
         }
 
     private:

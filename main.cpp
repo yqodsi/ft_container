@@ -30,25 +30,24 @@ int main(int argc, char const *argv[])
 {
     try
     {
-        TL::vector<int> v1;
-
-        v1.push_back(6);
-        v1.push_back(11);
-        v1.push_back(12);
-        v1.push_back(13);
+        TL::vector<int> v1(10, 1337);
+        TL::vector<int>::iterator it = v1.end();
+        it--;
+            v1.insert(it, 0, 69);
         print_vector(v1);
-        TL::vector<int>::iterator it = v1.begin();
-        TL::vector<int>::iterator it2 = v1.end();
-        while (it != v1.end())
-        {
-            std::cout << *it << std::endl;
-            it++;
-        }
     }
     catch (const std::exception &e)
     {
         std::cerr << e.what() << '\n';
     }
+    // it +
+    // *(position + n) = *poisition
+    // position++
+
+    // abcdefijklmn
+    // p = d
+    // n = 2
+    // abcdede
 
     return 0;
 }
